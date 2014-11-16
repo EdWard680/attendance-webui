@@ -47,7 +47,7 @@
     <script src="js/bootstrap.min.js"></script>
 
     <script>
-    var URL = "https://script.google.com/a/macros/hcrhs.org/s/AKfycbyaYJ_Htd7HkACeJMLEwz3sRPcAC6VvACRBmQc4TQFWxK239uA/exec?DATA=";
+    var URL = "https://script.google.com/macros/s/AKfycbyh3q7drhklirzdSbqCiP5rjnIG1U0nCl3ShDNjGnewdG7GxBKQ/exec?DATA=";
     $(function() {
       $(".idinput").bind("keypress", function(event) {
         if(event.which == 13) {
@@ -55,17 +55,33 @@
           $.ajax({
             type: "GET",
             url: URL + encodeURIComponent($(".idinput").val()),
-            dataType: 'jsonp',
+            dataType: 'html',
             beforeSend: function() {
               $(".loading").show();
             }
-          }).complete(function() {
+          }).complete(function(data) {
             // Reset
             $(".loading").hide();
             var nameRegex = /[A-Za-z, ]+/;
             var name = String(nameRegex.exec($(".idinput").val())).trim();
+	    var errorMode = "";
+            switch(data.responseText.split(":")[0].toLowerCase())
+            {
+            case "error":
+                errorMode = "alert-danger";
+                break;
+            case "warning":
+                errorMode = "alert-warning";
+                break;
+            case "success":
+                errorMode = "alert-success";
+                break;
+            default:
+                errorMode = "alert-info";
+                break;
+            }
             $(".idinput").val('');
-            $(".loginalert").stop().show().html("Signed in " + name).delay(1500).fadeOut();
+            $(".loginalert").stop().show().html(data.responseText).removeClass('alert-danger alert-info alert-success alert-warning').addClass(errorMode).delay(1500).fadeOut();
           });
         }
       });
